@@ -11,20 +11,15 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(cookieParser())
 
-app.get('/login', (req, res) => {
-  res.send('login here');
-});
-
-app.get('/logout', (req, res) => {
-  console.log('here');
+app.post('/logout', (req, res) => {
   res.clearCookie('access_token')
-  res.send('logged out<br /><a href="/login">Login</a>')
+  res.redirect('/')
 });
 
 app.post('/login', (req, res) => {
   request.post(
     {
-      url: api('/oauth/password'),
+      url: `${process.env.API_URL}/oauth/password`,
       form: {
         client_id: process.env.CLIENT_ID,
         client_secret: process.env.CLIENT_SECRET,
@@ -34,13 +29,14 @@ app.post('/login', (req, res) => {
     },
     function(err, result, body) {
       if (err) {
-        return res.send(err)
+        console.log('err', err);
+        return res.send("error")
       }
 
       res.cookie('access_token', JSON.parse(body)['access_token'], {
         domain: process.env.COOKIE_DOMAIN,
       })
-      res.redirect('/')
+      res.redirect('/browse')
     },
   )
 });

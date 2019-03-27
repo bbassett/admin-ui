@@ -41,11 +41,11 @@ app.post('/login', (req, res) => {
   )
 });
 
-app.use(express.static(path.join(__dirname, '../client/build')));
+app.use(express.static(path.join(__dirname, '../../client/build')));
 
 // any routes not picked up by the server api will be handled by the react router
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build'))
+  res.sendFile(path.join(__dirname, '../../client/build'))
 });
 
 app.set('port', (process.env.PORT || 3001))

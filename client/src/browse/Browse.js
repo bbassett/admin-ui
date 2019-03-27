@@ -31,7 +31,10 @@ class Browse extends Component {
 }
 
 function get_api_url(path) {
-  path = path.replace('/browse', '');
+  path = path == '/browse'
+    ? '/admin'
+    : path.replace('/browse', '');
+
   return `${process.env.REACT_APP_API_URL}${path}`
 }
 

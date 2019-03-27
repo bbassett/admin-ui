@@ -48,7 +48,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/build'))
 });
 
-app.set('port', (process.env.PORT || 3000))
+app.set('port', (process.env.PORT || 3001))
 app.listen(app.get('port'), () => {
   console.log(`Listening on ${app.get('port')}`)
 })

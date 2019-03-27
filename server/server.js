@@ -6,14 +6,14 @@ import cookieParser from 'cookie-parser'
 const request = require('request')
 
 const app = express()
-const router = express.Router()
-const staticFiles = express.static(path.join(__dirname, '../../client/build'))
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(cookieParser())
-app.use(staticFiles)
-app.use(router)
+
+app.get('/login', (req, res) => {
+  res.send('login here');
+});
 
 app.get('/logout', (req, res) => {
   console.log('here');
@@ -45,24 +45,14 @@ app.post('/login', (req, res) => {
   )
 });
 
-// any routes not picked up by the server api will be handled by the react router
-app.use('/*', staticFiles)
+app.use(express.static(path.join(__dirname, '../client/build')));
 
-app.set('port', (process.env.PORT || 3001))
+// any routes not picked up by the server api will be handled by the react router
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build'))
+});
+
+app.set('port', (process.env.PORT || 3000))
 app.listen(app.get('port'), () => {
   console.log(`Listening on ${app.get('port')}`)
 })
-
-// app.get('*', (req, res) => {
-//   console.log(req.path, req.cookies);
-//   if (req.path !== '/login' && !req.cookies['access_token']) {
-//     res.redirect('/login')
-//   } else {
-//     res.sendFile(path.join(__dirname+'/client/build/index.html'));
-//   }
-// });
-
-// const port = process.env.PORT || 5000;
-// app.listen(port);
-
-// console.log('App is listening on port ' + port);

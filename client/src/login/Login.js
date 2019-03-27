@@ -9,7 +9,6 @@ class Login extends Component {
           <input
             name="email"
             placeholder="email"
-            defaultValue="brandon@simplecast.com"
             required
           />
           <input
@@ -17,7 +16,6 @@ class Login extends Component {
             required
             type="password"
             placeholder="password"
-            defaultValue="BKbass0921!!"
             autoComplete="off"
           />
           <button type="submit">Submit</button>

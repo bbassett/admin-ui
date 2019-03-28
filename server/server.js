@@ -5,7 +5,9 @@ import path from 'path'
 import cookieParser from 'cookie-parser'
 const request = require('request')
 const app = express()
-const staticFile = process.env.NODE_ENV === 'production' ? '../../client/build' : '../client/build';
+const staticFile = '../../client/build';
+
+console.log(staticFile);
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(cookieParser())
@@ -40,7 +42,7 @@ app.post('/login', (req, res) => {
   )
 });
 
-// app.use(express.static(path.join(__dirname, staticFile)));
+app.use(express.static(path.join(__dirname, staticFile)));
 
 // any routes not picked up by the server api will be handled by the react router
 app.get('/*', (req, res) => {

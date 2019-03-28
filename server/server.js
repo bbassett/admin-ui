@@ -45,7 +45,10 @@ app.use(express.static(path.join(__dirname, staticFile)));
 
 // any routes not picked up by the server api will be handled by the react router
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, staticFile))
+  console.log('broken');
+  console.log(req.path);
+  res.redirect(`/?path=${req.path}`)
+  res.sendFile(path.join(__dirname, staticFile) )
 });
 
 app.set('port', (process.env.PORT || 3001))

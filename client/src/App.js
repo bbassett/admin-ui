@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { Redirect, BrowserRouter as Router, Route, Link } from "react-router-dom";
 import { withCookies } from 'react-cookie';
+import QueryString from 'query-string';
 import './App.css';
 import Index from './index/Index';
 import Browse from './browse/Browse';
@@ -46,6 +47,8 @@ class App extends Component {
   }
 
   render() {
+    const redirect_to = QueryString.parse(window.location.search).path;
+
     return (
       <Router>
         <div>
@@ -54,7 +57,13 @@ class App extends Component {
               { this.state.loggedIn ? <LoggedIn /> : <LoggedOut /> }
             </ul>
           </nav>
-          <Route path="/" exact component={Index} />
+          <Route path="/" exact render={() => (
+            redirect_to ? (
+              <Redirect to={ redirect_to} />
+            ) : (
+              <Index />
+            )
+          )} />
           <Route path="/browse/" component={Browse} />
           <Route path="/login/" exact component={Login} />
         </div>

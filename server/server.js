@@ -40,7 +40,7 @@ app.post('/login', (req, res) => {
   )
 });
 
-app.use(express.static(path.join(__dirname, staticFile)));
+// app.use(express.static(path.join(__dirname, staticFile)));
 
 // any routes not picked up by the server api will be handled by the react router
 app.get('/*', (req, res) => {

@@ -43,7 +43,8 @@ app.post('/login', (req, res) => {
 app.use(express.static(path.join(__dirname, staticFile)));
 
 // any routes not picked up by the server api will be handled by the react router
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
+  console.log('catch-all');
   res.sendFile(path.join(__dirname, staticFile))
 });
 

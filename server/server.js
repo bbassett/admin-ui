@@ -5,8 +5,7 @@ import path from 'path'
 import cookieParser from 'cookie-parser'
 const request = require('request')
 const app = express()
-const staticFile = process.env.NODE_ENV === 'prod' ? '../../client/build' : '../client/build';
-
+const staticFile = process.env.NODE_ENV === 'production' ? '../../client/build' : '../client/build';
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(cookieParser())

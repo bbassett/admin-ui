@@ -1,0 +1,20 @@
+.App {
+  text-align: center;
+}
+
+.toolbar {
+  align-itmes: space-between;
+}
+
+.root {
+  flex-grow: 1;
+}
+
+.grow {
+  flex-grow: 1;
+}
+
+.link {
+  color: white;
+  text-decoration: none;
+}

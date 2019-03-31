@@ -2,10 +2,14 @@ import React, { Component } from 'react';
 import { Redirect, BrowserRouter as Router, Route, Link } from "react-router-dom";
 import { withCookies } from 'react-cookie';
 import QueryString from 'query-string';
-import './App.css';
+import styles from './App.module.css';
 import Index from './index/Index';
 import Browse from './browse/Browse';
 import Login from './login/Login';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 
 require('dotenv').config()
 
@@ -27,8 +31,10 @@ class LoggedIn extends Component {
 
   render() {
     return [
-      <li key='browse'><Link to="/browse">Browse</Link></li>,
-      <li key='logout'><a href="/" onClick={ this.logout }>Logout</a></li>
+      <Typography color="inherit" key='type2'>
+        <Button key='browse'><Link to="/browse" className={ styles.link }>Browse</Link></Button>
+        <Button key='logout'><a href="/" className={ styles.link } onClick={ this.logout }>Logout</a></Button>
+      </Typography>
     ]
   }
 }
@@ -52,6 +58,16 @@ class App extends Component {
     return (
       <Router>
         <div>
+          <div className={ styles.root }>
+            <AppBar position="static">
+              <Toolbar>
+                <Typography key='type1' variant="h6" color="inherit" className={ styles.grow }>
+                  Simplecast Admin
+                </Typography>
+                { this.state.loggedIn ? <LoggedIn /> : <LoggedOut /> }
+              </Toolbar>
+            </AppBar>
+          </div>
           <nav>
             <ul>
               { this.state.loggedIn ? <LoggedIn /> : <LoggedOut /> }

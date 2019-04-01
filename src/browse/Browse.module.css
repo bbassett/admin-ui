@@ -1,0 +1,19 @@
+.Browse {
+  text-align: center;
+}
+
+.input {
+
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+}
+
+.list {
+  width: '100%';
+  maxWidth: 360;
+  backgroundColor: grey;
+}

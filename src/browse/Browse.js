@@ -1,9 +1,17 @@
 import React, { Component } from 'react';
-import './Browse.css';
+import styles from './Browse.module.css';
 import Cookies from 'js-cookie';
+import Form from '../components/form/Form';
+import FormInput from '../components/form-input/FormInput';
+import Collapse from '@material-ui/core/Collapse';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
 
 class Browse extends Component {
-  state = {jsonBody: '{}', access_token: Cookies.get('access_token')}
+  state = {jsonBody: '{}', access_token: Cookies.get('access_token'), open: true}
   async componentDidMount() {
     const url = get_api_url(window.location.pathname)
 
@@ -20,63 +28,112 @@ class Browse extends Component {
   render() {
     return (
       <div>
-        { recursive_list(JSON.parse(this.state.jsonBody)) }
+        <List className={ styles.list }>
+          { recursive_list(this.state, JSON.parse(this.state.jsonBody)) }
+        </List>
       </div>
     );
   }
 }
 
 function get_api_url(path) {
-  path = path === '/browse'
-    ? '/admin'
-    : path.replace('/browse', '');
-
-  return `${process.env.REACT_APP_API_URL}${path}`
+  if (path === "/") {
+    path = "/admin"
+  }
+  return `${process.env.REACT_APP_API_BASE_PATH}${path}`
 }
 
-function recursive_list(body) {
+function recursive_list(state, body) {
   const keys = Object.keys(body)
 
   return (
-    <ul>
-    {
-      keys.map(key => {
-        return key === "href"
-        ? <li key={ key }>{ link_to(body[key]) }</li>
-        : <li key={ key }>{ key }: { get_val(body[key]) }</li>
-      })
-    }
-    </ul>
- )
+    keys.map((key, index) => {
+      const value = body[key];
+      if(key === "href") {
+        return  <ListItem divider button onClick={ () => window.location = link(body[key]) }>
+          <ListItemText inset primary={ link(body[key]) } />
+        </ListItem>
+      } else if(value === null) {
+        return <ListItem divider>
+          <ListItemText inset primary={ key } secondary="null"/>
+        </ListItem>
+      } else if (typeof(value) === "object") {
+        if(value.method && value.method === "POST") {
+          return (
+            <Form action={value.action} subheader={ key }>
+              {Object.keys(value.input).map((key, index) => {
+                const input = value.input[key];
+                console.log(input);
+                return <FormInput
+                  type={ input.type }
+                  index={ input.index }
+                  value={ input.value }
+                  required={ input.required }
+                  disabled={ input.disabled }
+                  name={ key }
+                >
+                  { input.options }
+                </FormInput>
+              })}
+            </Form>
+          )
+        } else {
+          // it's a collection
+          return (<Collapse in={state.open} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              { recursive_list(state, value) }
+            </List>
+          </Collapse>)
+        }
+      } else if (typeof(value) === "boolean") {
+        return value ? "true" : "false"
+      } else {
+        return value
+      }
+    })
+  )
 }
 
-function link_to(url) {
+function link(url) {
   if(url) {
-    const path = new URL(url || '').pathname;
-    return <a href={ `/browse${path}` }>{ path }</a>
+    return new URL(url || '').pathname;
   } else {
     return ''
   }
 }
 
-function get_val(value) {
-  if (value == null) {
-    return "null"
-  } else if (typeof(value) === "object") {
-    if(value.method && value.method === "POST") {
-      return "form"
-    } else {
-      return recursive_list(value)
-    }
-  } else if (typeof(value) === "boolean") {
-    if (value) {
-      return "true"
-    } else {
-      return "false"
-    }
+function compute_input(key, input, index) {
+  if(input.type === "select") {
+    return compute_select(key, input, index)
+  } else if(input.type === "checkbox") {
+    return compute_checkbox(key, input, index)
   } else {
-    return value
+    return <input
+      key={`form-input-${index}` }
+      value={ input.value }
+      type={ input.type }
+      placeholder={ key }
+      name={ key }
+    />
   }
+}
+
+function compute_checkbox(key, input, index) {
+  return (
+    <div className={ styles.input }>
+      <label htmlFor={ key }>{ key }</label>
+      <input name={ key } type="checkbox" key={`form-input-${index}` } />
+    </div>
+  )
+}
+
+function compute_select(key, input, index) {
+  return (
+    <div className={ styles.input }>
+      <label htmlFor={ key }>{ key }</label>
+      <select name={ key } key={ `form-input-${index}` }></select>
+    </div>
+  )
 }
 
 export default Browse;

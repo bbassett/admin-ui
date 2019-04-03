@@ -1,137 +1,118 @@
 import React, { Component } from 'react';
 import styles from './Browse.module.css';
 import Cookies from 'js-cookie';
-import Form from '../components/form/Form';
-import FormInput from '../components/form-input/FormInput';
-import Collapse from '@material-ui/core/Collapse';
 import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
+import Json from '../components/json/Json';
+import Link from '../components/link/Link';
+import Text from '../components/text/Text';
+import Form from '../components/form/Form';
+import Collection from '../components/collection/Collection';
+import ApiObject from '../components/object/Object';
+import InputCheckbox from '../components/input/checkbox/Checkbox';
+import InputText from '../components/input/text/Text';
 
 class Browse extends Component {
   state = {jsonBody: '{}', access_token: Cookies.get('access_token'), open: true}
   async componentDidMount() {
-    const url = get_api_url(window.location.pathname)
+    const pathname = window.location.pathname
+    const api_url = process.env.REACT_APP_API_BASE_PATH
+    const url = pathname === "/" ? `${api_url}/admin` : `${api_url}${pathname}`
 
-    let headers = {'Content-Type': 'application/json'}
+    const headers = {'Content-Type': 'application/json'}
     if(this.state.access_token) {
       headers['Authorization'] = `Bearer ${this.state.access_token}`
     }
 
     const api_response = await fetch(url, {headers: headers})
     const jsonBody = await api_response.json()
-    this.setState({jsonBody: JSON.stringify(jsonBody)})
+    this.setState({jsonBody: JSON.stringify(jsonBody, null, 4)})
   }
 
   render() {
     return (
-      <div>
+      <div className={ styles.root }>
         <List className={ styles.list }>
-          { recursive_list(this.state, JSON.parse(this.state.jsonBody)) }
+          <Json>{ this.state.jsonBody }</Json>
+          { to_items(JSON.parse(this.state.jsonBody), null, "root") }
         </List>
       </div>
     );
   }
 }
 
-function get_api_url(path) {
-  if (path === "/") {
-    path = "/admin"
-  }
-  return `${process.env.REACT_APP_API_BASE_PATH}${path}`
-}
-
-function recursive_list(state, body) {
+function to_items(body, parentKey, namespace) {
   const keys = Object.keys(body)
 
   return (
-    keys.map((key, index) => {
+    keys
+    .sort()
+    .map((key, index) => {
       const value = body[key];
-      if(key === "href") {
-        return  <ListItem divider button onClick={ () => window.location = link(body[key]) }>
-          <ListItemText inset primary={ link(body[key]) } />
-        </ListItem>
-      } else if(value === null) {
-        return <ListItem divider>
-          <ListItemText inset primary={ key } secondary="null"/>
-        </ListItem>
+      if (key === "href") {
+        return <Link key={ `${namespace}-${index}` } href={ value } />
+      } else if(value === null || typeof(value) === "boolean" || typeof(value) === "string") {
+        return <Text key={ `${namespace}-${index}` } fieldKey={ human_readable(key) } value={ value } />
+      } else if(Array.isArray(value)) {
+        return <Collection reactKey={ `${namespace}-${index}` } key={ `${namespace}-${index}` } fieldKey={ human_readable(key) }>
+          { to_items(value, key, `${namespace}-${index}`) }
+        </Collection>
       } else if (typeof(value) === "object") {
-        if(value.method && value.method === "POST") {
+        if(value.method && (value.method === "POST" || value.method === "DELETE")) {
           return (
-            <Form action={value.action} subheader={ key }>
-              {Object.keys(value.input).map((key, index) => {
-                const input = value.input[key];
-                console.log(input);
-                return <FormInput
-                  type={ input.type }
-                  index={ input.index }
-                  value={ input.value }
-                  required={ input.required }
-                  disabled={ input.disabled }
-                  name={ key }
-                >
-                  { input.options }
-                </FormInput>
-              })}
+            <Form
+              key={ `${namespace}-${index}` }
+              reactKey={ `${namespace}-${index}` }
+              action={value.action}
+              header={ human_readable(parentKey) }
+              subHeader={ human_readable(key) }
+            >
+              { to_inputs(key, value.input, `${namespace}-${index}`) }
             </Form>
           )
         } else {
-          // it's a collection
-          return (<Collapse in={state.open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              { recursive_list(state, value) }
-            </List>
-          </Collapse>)
+          // it's an object, but not a form
+          return <ApiObject key={ `${namespace}-${index}` } fieldKey={ human_readable(key) }>
+            { to_items(value, key, `${namespace}-${index}`)}
+          </ApiObject>
         }
-      } else if (typeof(value) === "boolean") {
-        return value ? "true" : "false"
       } else {
-        return value
+        return <div key={ `${namespace}-${index}` }></div>
       }
     })
   )
 }
 
-function link(url) {
-  if(url) {
-    return new URL(url || '').pathname;
+function human_readable(key) {
+  if(key) {
+    return (<span key={ `${key}-str` } className={ styles.caps }>{ key.replace(/_/g, " ") }</span>);
   } else {
-    return ''
+    return (<span></span>);
   }
 }
 
-function compute_input(key, input, index) {
-  if(input.type === "select") {
-    return compute_select(key, input, index)
-  } else if(input.type === "checkbox") {
-    return compute_checkbox(key, input, index)
-  } else {
-    return <input
-      key={`form-input-${index}` }
-      value={ input.value }
-      type={ input.type }
-      placeholder={ key }
-      name={ key }
-    />
-  }
-}
+function to_inputs(key, inputs, reactKey) {
+  const input_keys = Object.keys(inputs);
 
-function compute_checkbox(key, input, index) {
-  return (
-    <div className={ styles.input }>
-      <label htmlFor={ key }>{ key }</label>
-      <input name={ key } type="checkbox" key={`form-input-${index}` } />
-    </div>
-  )
-}
-
-function compute_select(key, input, index) {
-  return (
-    <div className={ styles.input }>
-      <label htmlFor={ key }>{ key }</label>
-      <select name={ key } key={ `form-input-${index}` }></select>
-    </div>
-  )
+  return input_keys.map((key, index) => {
+    const value = inputs[key];
+    value["name"] = key;
+    value["label"] = human_readable(key);
+    value["key"] = `${reactKey}-${index}`;
+    value["required"] = value["required"] === "true" ? true : false;
+    if (value.type === "checkbox") {
+      return <InputCheckbox { ...value } />;
+    } else if(!value.type) {
+      return <InputText { ...value } />;
+    } else if(value.type === "password") {
+      return <InputText { ...value } />;
+    } else if(value.type === "hidden") {
+      value["disabled"] = true;
+      value["type"] = "text";
+      return <InputText { ...value } />;
+    } else {
+      return <div { ...value }>{key}</div>
+    }
+  });
 }
 
 export default Browse;

@@ -1,5 +1,7 @@
-.Browse {
+.root {
   text-align: center;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .input {
@@ -14,6 +16,9 @@
 
 .list {
   width: '100%';
-  maxWidth: 360;
-  backgroundColor: grey;
+  max-width: 360;
+}
+
+.caps {
+  text-transform: capitalize;
 }

@@ -2,10 +2,6 @@
   text-align: center;
 }
 
-.toolbar {
-  align-itmes: space-between;
-}
-
 .root {
   flex-grow: 1;
 }

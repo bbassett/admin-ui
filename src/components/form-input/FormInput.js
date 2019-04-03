@@ -26,5 +26,39 @@ class FormInput extends Component {
   }
 }
 
+// function compute_input(key, input, index) {
+//   if(input.type === "select") {
+//     return compute_select(key, input, index)
+//   } else if(input.type === "checkbox") {
+//     return compute_checkbox(key, input, index)
+//   } else {
+//     return <input
+//       key={`form-input-${index}` }
+//       value={ input.value }
+//       type={ input.type }
+//       placeholder={ key }
+//       name={ key }
+//     />
+//   }
+// }
+
+// function compute_checkbox(key, input, index) {
+//   return (
+//     <div className={ styles.input }>
+//       <label htmlFor={ key }>{ key }</label>
+//       <input name={ key } type="checkbox" key={`form-input-${index}` } />
+//     </div>
+//   )
+// }
+
+// function compute_select(key, input, index) {
+//   return (
+//     <div className={ styles.input }>
+//       <label htmlFor={ key }>{ key }</label>
+//       <select name={ key } key={ `form-input-${index}` }></select>
+//     </div>
+//   )
+// }
+
 
 export default FormInput;

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { withCookies } from 'react-cookie';
-import QueryString from 'query-string';
 import styles from './App.module.css';
 import Browse from './browse/Browse';
 import AppBar from '@material-ui/core/AppBar';

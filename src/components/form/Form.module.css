@@ -1,0 +1,7 @@
+.capitalize {
+  text-transform: capitalize;
+}
+
+.nested {
+  padding-left: 32px !important;
+}
